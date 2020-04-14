@@ -26,8 +26,18 @@ import org.apache.dubbo.demo.DemoService;
 
 public class ApplicationProvider {
     public static void main(String[] args) throws Exception {
+//        System.setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+
         ServiceConfig<DemoServiceImpl> service = new ServiceConfig<>();
-        service.setApplication(new ApplicationConfig("dubbo-bigger-rice-api-provider"));
+
+        //应用配置
+        ApplicationConfig applicationConfig = new ApplicationConfig("dubbo-bigger-rice-api-provider");
+        applicationConfig.setQosEnable(true);
+        applicationConfig.setQosPort(22222);
+
+        applicationConfig.setCompiler("javassist");
+        service.setApplication(applicationConfig);
+
 
 
         //服务提供者注册中心配置，可以多个

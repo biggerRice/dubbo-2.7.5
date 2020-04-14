@@ -19,6 +19,8 @@ package org.apache.dubbo.rpc.proxy.javassist;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.bytecode.Proxy;
 import org.apache.dubbo.common.bytecode.Wrapper;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.proxy.AbstractProxyFactory;
 import org.apache.dubbo.rpc.proxy.AbstractProxyInvoker;
@@ -26,15 +28,26 @@ import org.apache.dubbo.rpc.proxy.InvokerInvocationHandler;
 
 /**
  * JavaassistRpcProxyFactory
+ * 实现 AbstractProxyFactory 抽象类，基于 Javassist 代理工厂实现类
+ *
  * JavassistProxyFactory 创建了一个继承自 AbstractProxyInvoker 类的匿名对象
  * 并覆写了抽象方法 doInvoke,里面调用请求转发给了 Wrapper 类的 invokeMethod 方法
  */
 public class JavassistProxyFactory extends AbstractProxyFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getProxy(Invoker<T> invoker, Class<?>[] interfaces) {
-        return (T) Proxy.getProxy(interfaces).newInstance(new InvokerInvocationHandler(invoker));
+        //根据接口数组生成代理工厂
+        Proxy proxyInstance = Proxy.getProxy(interfaces);
+        logger.info("proxyInstance.getClass==="+proxyInstance.getClass());
+
+        //代理工厂再根据invoker生成代理
+        T t = (T) proxyInstance.newInstance(new InvokerInvocationHandler(invoker));
+        logger.info("t.getClass==="+t.getClass());
+        return t;
     }
 
     @Override

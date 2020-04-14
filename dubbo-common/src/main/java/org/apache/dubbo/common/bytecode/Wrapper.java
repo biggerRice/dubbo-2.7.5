@@ -34,13 +34,25 @@ import java.util.regex.Matcher;
 
 /**
  * Wrapper.
+ * Wrapper 抽象类，用于创建某个对象的方法调用的包装器，以避免反射调用，提高性能
+ *
  * Wrapper 用于“包裹”目标类，Wrapper 是一个抽象类，仅可通过 getWrapper(Class) 方法创建子类。
  * 在创建 Wrapper 子类的过程中，子类代码生成逻辑会对 getWrapper 方法传入的 Class 对象进行解析
  */
 public abstract class Wrapper {
+    /**
+     * 缓存类与包装类
+     * key：DemoService.class
+     * value:Wrapper对象
+     */
     private static final Map<Class<?>, Wrapper> WRAPPER_MAP = new ConcurrentHashMap<Class<?>, Wrapper>(); //class wrapper map
+    //包装后的Object类数组
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    //包装后的Object类方法名字
     private static final String[] OBJECT_METHODS = new String[]{"getClass", "hashCode", "toString", "equals"};
+    /**
+     * 包装后的Object类对象
+     */
     private static final Wrapper OBJECT_WRAPPER = new Wrapper() {
         @Override
         public String[] getMethodNames() {
@@ -101,16 +113,17 @@ public abstract class Wrapper {
 
     /**
      * get wrapper.
-     *
+     * 根据指定类，获得 Wrapper 对象
      * @param c Class instance.
      * @return Wrapper instance(not null).
      */
     public static Wrapper getWrapper(Class<?> c) {
-        while (ClassGenerator.isDynamicClass(c)) // can not wrapper on dynamic class.
+        // ClassGenerator 类自己不包装
+        while (ClassGenerator.isDynamicClass(c))
         {
             c = c.getSuperclass();
         }
-
+        //Object类直接返回包装好的对象
         if (c == Object.class) {
             return OBJECT_WRAPPER;
         }
@@ -169,6 +182,7 @@ public abstract class Wrapper {
          */
         // 获取 public 访问级别的字段，并为所有字段生成条件判断语句
         // get all public field.
+        // 这里为所有public字段生成 赋值语句，在setPropertyValue方法里面如判断
         for (Field f : c.getFields()) {
             String fn = f.getName();
             Class<?> ft = f.getType();
@@ -249,7 +263,7 @@ public abstract class Wrapper {
                 //     && $3[1].getName().equals("java.lang.String")) {
                 c3.append(" ) { ");
 
-                // 根据返回值类型生成目标方法调用语句
+                // 根据方法返回值类型生成目标方法调用语句
                 if (m.getReturnType() == Void.TYPE) {
                     // w.sayHello((java.lang.Integer)$4[0], (java.lang.String)$4[1]); return null;
                     c3.append(" w.").append(mn).append('(').append(args(m.getParameterTypes(), "$4")).append(");").append(" return null;");
@@ -547,12 +561,12 @@ public abstract class Wrapper {
 
     /**
      * invoke method.
-     *
-     * @param instance instance.
-     * @param mn       method name.
-     * @param types
-     * @param args     argument array.
-     * @return return value.
+     * 调用方法
+     * @param instance instance. 被调用的对象
+     * @param mn   method name. 方法名
+     * @param types 参数类型数组
+     * @param args  参数数组
+     * @return return value. 返回值
      */
     abstract public Object invokeMethod(Object instance, String mn, Class<?>[] types, Object[] args) throws NoSuchMethodException, InvocationTargetException;
 }

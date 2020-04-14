@@ -168,10 +168,17 @@ public class ProtocolFilterWrapper implements Protocol {
             this.filters = filters;
         }
 
+        /**
+         * 过滤链调用
+         * @param invocation
+         * @return
+         * @throws RpcException
+         */
         @Override
         public Result invoke(Invocation invocation) throws RpcException {
+            //继续调用服务提供者抽象代理类
             Result asyncResult = filterInvoker.invoke(invocation);
-
+            //TODO:执行调用链，以后详细分析,过滤链有啥？起个啥作用？
             asyncResult = asyncResult.whenCompleteWithContext((r, t) -> {
                 for (int i = filters.size() - 1; i >= 0; i--) {
                     Filter filter = filters.get(i);

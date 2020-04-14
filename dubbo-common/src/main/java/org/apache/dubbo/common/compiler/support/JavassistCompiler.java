@@ -25,17 +25,29 @@ import java.util.regex.Pattern;
 
 /**
  * JavassistCompiler. (SPI, Singleton, ThreadSafe)
+ * 实现 AbstractCompiler 抽象类，基于 Javassist 实现的 Compiler
  */
 public class JavassistCompiler extends AbstractCompiler {
 
+   /**
+    * 正则 - 匹配 import
+    */
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import\\s+([\\w\\.\\*]+);\n");
-
+    /**
+     * 正则 - 匹配 extends
+     */
     private static final Pattern EXTENDS_PATTERN = Pattern.compile("\\s+extends\\s+([\\w\\.]+)[^\\{]*\\{\n");
-
+    /**
+     * 正则 - 匹配 implements
+     */
     private static final Pattern IMPLEMENTS_PATTERN = Pattern.compile("\\s+implements\\s+([\\w\\.]+)\\s*\\{\n");
-
+    /**
+     * 正则 - 匹配 methods
+     */
     private static final Pattern METHODS_PATTERN = Pattern.compile("\n(private|public|protected)\\s+");
-
+    /**
+     * 正则 - 匹配 field
+     */
     private static final Pattern FIELD_PATTERN = Pattern.compile("[^\n]+=[^\n]+;");
 
     @Override
@@ -45,18 +57,23 @@ public class JavassistCompiler extends AbstractCompiler {
 
         // process imported classes
         Matcher matcher = IMPORT_PATTERN.matcher(source);
+        //循环匹配到的导入import 标签内容
         while (matcher.find()) {
-            builder.addImports(matcher.group(1).trim());
+            String imports = matcher.group(1).trim();
+            builder.addImports(imports);
         }
 
         // process extended super class
         matcher = EXTENDS_PATTERN.matcher(source);
+        //循环匹配到的导入extends 标签内容
         if (matcher.find()) {
-            builder.setSuperClassName(matcher.group(1).trim());
+            String superClass = matcher.group(1).trim();
+            builder.setSuperClassName(superClass);
         }
 
         // process implemented interfaces
         matcher = IMPLEMENTS_PATTERN.matcher(source);
+        //添加实现的接口
         if (matcher.find()) {
             String[] ifaces = matcher.group(1).trim().split("\\,");
             Arrays.stream(ifaces).forEach(i -> builder.addInterface(i.trim()));

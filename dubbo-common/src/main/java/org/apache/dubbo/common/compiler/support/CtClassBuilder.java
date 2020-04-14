@@ -35,10 +35,11 @@ import javassist.NotFoundException;
  * <p>
  * contains all the information, including:
  * <p>
+ *  编译器构建工具
  * class name, imported packages, super class name, implemented interfaces, constructors, fields, methods.
  */
 public class CtClassBuilder {
-
+    // 类名，如org.apache.dubbo.common.compiler.support.HelloServiceImpl
     private String className;
 
     private String superClassName = "java.lang.Object";
@@ -79,8 +80,11 @@ public class CtClassBuilder {
         int pi = pkg.lastIndexOf('.');
         if (pi > 0) {
             String pkgName = pkg.substring(0, pi);
+            //添加包名
             this.imports.add(pkgName);
+            // 引用指定类或接口
             if (!pkg.endsWith(".*")) {
+                //名字和全路径名对应
                 fullNames.put(pkg.substring(pi + 1), pkg);
             }
         }
@@ -139,21 +143,27 @@ public class CtClassBuilder {
      * build CtClass object
      */
     public CtClass build(ClassLoader classLoader) throws NotFoundException, CannotCompileException {
+        // 创建 ClassPool 对象
         ClassPool pool = new ClassPool(true);
+        // 设置类搜索路径
         pool.appendClassPath(new LoaderClassPath(classLoader));
         
         // create class
+        // 创建 CtClass 对象
         CtClass ctClass = pool.makeClass(className, pool.get(superClassName));
 
         // add imported packages
+        //添加导入包名
         imports.stream().forEach(pool::importPackage);
 
         // add implemented interfaces
+        //添加实现接口
         for (String iface : ifaces) {
             ctClass.addInterface(pool.get(iface));
         }
 
         // add constructors
+        //添加构造函数
         for (String constructor : constructors) {
             ctClass.addConstructor(CtNewConstructor.make(constructor, ctClass));
         }

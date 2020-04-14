@@ -22,10 +22,11 @@ import org.apache.dubbo.common.extension.ExtensionLoader;
 
 /**
  * AdaptiveCompiler. (SPI, Singleton, ThreadSafe)
+ * 实现 Compiler 接口，自适应 Compiler 实现类
  */
 @Adaptive
 public class AdaptiveCompiler implements Compiler {
-
+    //默认的编译器名字
     private static volatile String DEFAULT_COMPILER;
 
     public static void setDefaultCompiler(String compiler) {
@@ -35,13 +36,18 @@ public class AdaptiveCompiler implements Compiler {
     @Override
     public Class<?> compile(String code, ClassLoader classLoader) {
         Compiler compiler;
+        // 获得 Compiler 扩展点的 ExtensionLoader 对象
         ExtensionLoader<Compiler> loader = ExtensionLoader.getExtensionLoader(Compiler.class);
+        // 获取配置的编译器名字
         String name = DEFAULT_COMPILER; // copy reference
         if (name != null && name.length() > 0) {
+            //如果设置了则创建设置的编译器
             compiler = loader.getExtension(name);
         } else {
+            //否则加载默认编译器
             compiler = loader.getDefaultExtension();
         }
+        //调用真正编译器 编译代码
         return compiler.compile(code, classLoader);
     }
 

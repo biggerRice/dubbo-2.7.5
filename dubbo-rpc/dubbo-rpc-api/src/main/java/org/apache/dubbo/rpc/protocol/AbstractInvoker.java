@@ -157,10 +157,12 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         RpcInvocation invocation = (RpcInvocation) inv;
         // 设置invoker
         invocation.setInvoker(this);
+        // 添加公用的隐式传参，例如，`path` `interface` 等等，详见 RpcInvocation 类。
         if (CollectionUtils.isNotEmptyMap(attachment)) {
             // 设置 attachment
             invocation.addAttachmentsIfAbsent(attachment);
         }
+        // 添加自定义的隐士传参
         Map<String, String> contextAttachments = RpcContext.getContext().getAttachments();
         if (CollectionUtils.isNotEmptyMap(contextAttachments)) {
             /**
@@ -175,6 +177,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
 
         // 设置异步信息到 RpcInvocation#attachment 中
         invocation.setInvokeMode(RpcUtils.getInvokeMode(url, invocation));
+        //TODO:异步设置这个ID干啥
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
 
         try {
@@ -200,7 +203,5 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             return AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
         }
     }
-
     protected abstract Result doInvoke(Invocation invocation) throws Throwable;
-
 }

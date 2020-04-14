@@ -34,14 +34,15 @@ import java.util.concurrent.CompletionException;
 
 /**
  * InvokerWrapper
+ * 实现 Invoker 接口，代理 Invoker 对象的抽象类
  */
 public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
     Logger logger = LoggerFactory.getLogger(AbstractProxyInvoker.class);
-
+    // 代理对象，一般为service实现对象
     private final T proxy;
-
+    // 代理接口，一般为service接口
     private final Class<T> type;
-
+    // 服务提供者url
     private final URL url;
 
     public AbstractProxyInvoker(T proxy, Class<T> type, URL url) {
@@ -81,6 +82,7 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         try {
+            //调用实现类的方法
             Object value = doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());
             CompletableFuture<Object> future = wrapWithFuture(value, invocation);
             AsyncRpcResult asyncRpcResult = new AsyncRpcResult(invocation);
@@ -117,6 +119,15 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
         return CompletableFuture.completedFuture(value);
     }
 
+    /**
+     * 子类是谁来实现？
+     * @param proxy 真实服务对象
+     * @param methodName 方法名
+     * @param parameterTypes 方法参数类型
+     * @param arguments 方法参数值
+     * @return
+     * @throws Throwable
+     */
     protected abstract Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable;
 
     @Override

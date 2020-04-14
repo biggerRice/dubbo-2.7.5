@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 
 /**
  * InvokerHandler
+ * 实现 java.lang.reflect.InvocationHandler 接口
+ * 可以实现 Proxy 和真正的逻辑解耦
  */
 public class InvokerInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
@@ -45,7 +47,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
-        // 如果 toString、hashCode 和 equals 等方法被子类重写了，这里也直接调用
+        // toString、hashCode 和 equals 等方法直接调用本地方法
         if ("toString".equals(methodName) && parameterTypes.length == 0) {
             return invoker.toString();
         }
@@ -56,6 +58,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             return invoker.equals(args[0]);
         }
 
+        //真正rpc调用
         // 将 method 和 args 封装到 RpcInvocation 中，并执行后续的调用
         return invoker.invoke(new RpcInvocation(method, args)).recreate();
     }

@@ -73,4 +73,14 @@ public class JavassistCompilerTest extends JavaCodeTest {
         Method sayHello = instance.getClass().getMethod("sayHello");
         Assertions.assertEquals("Hello world3!", sayHello.invoke(instance));
     }
+
+    @Test
+    public void testGetSimpleCodeWithAll() throws Exception {
+        JavassistCompiler compiler = new JavassistCompiler();
+        Class<?> clazz = compiler.compile(getSimpleCodeWithAll(), JavassistCompiler.class.getClassLoader());
+        Object instance = clazz.newInstance();
+        Method sayHello = instance.getClass().getMethod("sayHello");
+        Assertions.assertEquals("Hello world3!", sayHello.invoke(instance));
+    }
+
 }

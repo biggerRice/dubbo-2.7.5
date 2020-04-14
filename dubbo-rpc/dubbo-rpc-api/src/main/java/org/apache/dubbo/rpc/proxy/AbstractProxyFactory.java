@@ -29,6 +29,7 @@ import static org.apache.dubbo.rpc.Constants.INTERFACES;
 
 /**
  * AbstractProxyFactory
+ * 现 ProxyFactory 接口，代理工厂抽象类
  */
 public abstract class AbstractProxyFactory implements ProxyFactory {
 
@@ -37,9 +38,18 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
         return getProxy(invoker, false);
     }
 
+    /**
+     * 服务引用生成代理时，增强代理接口功能，比如支持回声服务、泛化服务等
+     * @param invoker
+     * @param generic
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> T getProxy(Invoker<T> invoker, boolean generic) throws RpcException {
         Class<?>[] interfaces = null;
+        // 为了假如回声测试等其它接口支持
         String config = invoker.getUrl().getParameter(INTERFACES);
         if (config != null && config.length() > 0) {
             String[] types = COMMA_SPLIT_PATTERN.split(config);
@@ -53,10 +63,13 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
                 }
             }
         }
+        // 增加 EchoService 接口，用于回生测试。
+        // 参见文档《回声测试》http://dubbo.apache.org/zh-cn/docs/user/demos/echo-service.html
         if (interfaces == null) {
             interfaces = new Class<?>[]{invoker.getInterface(), EchoService.class};
         }
 
+        //如果支持泛化调用，增加泛化接口支持
         if (!GenericService.class.isAssignableFrom(invoker.getInterface()) && generic) {
             int len = interfaces.length;
             Class<?>[] temp = interfaces;
@@ -67,7 +80,13 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
 
         return getProxy(invoker, interfaces);
     }
-
+    /**
+     * 生成具体代理对象子类完成
+     * @param invoker
+     * @param types
+     * @param <T>
+     * @return
+     */
     public abstract <T> T getProxy(Invoker<T> invoker, Class<?>[] types);
 
 }

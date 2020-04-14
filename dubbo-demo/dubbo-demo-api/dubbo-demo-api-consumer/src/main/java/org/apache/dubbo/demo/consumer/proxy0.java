@@ -10,24 +10,18 @@
 package org.apache.dubbo.demo.consumer;
 
 import com.alibaba.dubbo.rpc.service.EchoService;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import org.apache.dubbo.common.bytecode.ClassGenerator;
 import org.apache.dubbo.demo.DemoService;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
 public class proxy0
-implements ClassGenerator.DC,
-EchoService,
-DemoService {
+        implements ClassGenerator.DC,
+        EchoService,
+        DemoService {
     public static Method[] methods;
     private InvocationHandler handler;
-
-    public proxy0(InvocationHandler invocationHandler) {
-        this.handler = invocationHandler;
-    }
-
-    public proxy0() {
-    }
 
     @Override
     public String sayHello(String string) {
@@ -41,11 +35,19 @@ DemoService {
             throwable.printStackTrace();
         }
         // 返回调用结果
-        return (String)object;
+        return (String) object;
+    }
+
+    public proxy0(InvocationHandler invocationHandler) {
+        this.handler = invocationHandler;
+    }
+
+    public proxy0() {
     }
 
     /**
-     *  回声测试方法
+     * 回声测试方法
+     *
      * @param object
      * @return
      */

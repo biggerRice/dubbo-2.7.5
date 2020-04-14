@@ -21,6 +21,8 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -29,6 +31,7 @@ public class ProxyTest {
     @Test
     public void testMain() throws Exception {
         Proxy proxy = Proxy.getProxy(ITest.class, ITest.class);
+        System.out.println("proxy.class="+proxy.getClass());
         ITest instance = (ITest) proxy.newInstance((proxy1, method, args) -> {
             if ("getName".equals(method.getName())) {
                 assertEquals(args.length, 0);
@@ -40,8 +43,16 @@ public class ProxyTest {
             return null;
         });
 
+        System.out.println("instance="+instance.getClass());
+
         assertNull(instance.getName());
         instance.setName("qianlei", "hello");
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

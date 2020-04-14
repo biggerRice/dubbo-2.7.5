@@ -53,7 +53,9 @@ public class RpcInvocation implements Invocation, Serializable {
     private transient Invoker<?> invoker;
 
     private transient Class<?> returnType;
-
+    /**
+     * 调用模式
+     */
     private transient InvokeMode invokeMode;
 
     public RpcInvocation() {

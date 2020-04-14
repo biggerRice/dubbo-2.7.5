@@ -26,13 +26,19 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractCompiler implements Compiler {
 
+    /**
+     * 包名正则匹配
+     */
     private static final Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([$_a-zA-Z][$_a-zA-Z0-9\\.]*);");
-
+    /**
+     * 类名正则匹配
+     */
     private static final Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-Z][$_a-zA-Z0-9]*)\\s+");
 
     @Override
     public Class<?> compile(String code, ClassLoader classLoader) {
         code = code.trim();
+        //获取包名
         Matcher matcher = PACKAGE_PATTERN.matcher(code);
         String pkg;
         if (matcher.find()) {
@@ -40,6 +46,7 @@ public abstract class AbstractCompiler implements Compiler {
         } else {
             pkg = "";
         }
+        // 获取类名
         matcher = CLASS_PATTERN.matcher(code);
         String cls;
         if (matcher.find()) {
@@ -49,12 +56,17 @@ public abstract class AbstractCompiler implements Compiler {
         }
         String className = pkg != null && pkg.length() > 0 ? pkg + "." + cls : cls;
         try {
+            //根据类路径加载类实例
             return Class.forName(className, true, org.apache.dubbo.common.utils.ClassUtils.getCallerClassLoader(getClass()));
-        } catch (ClassNotFoundException e) {
+        }
+        // 找不到说明还未编译
+        catch (ClassNotFoundException e) {
+
             if (!code.endsWith("}")) {
                 throw new IllegalStateException("The java code not endsWith \"}\", code: \n" + code + "\n");
             }
             try {
+                //具体子类编译器编译
                 return doCompile(className, code);
             } catch (RuntimeException t) {
                 throw t;
@@ -64,6 +76,13 @@ public abstract class AbstractCompiler implements Compiler {
         }
     }
 
+    /**
+     * 模板方法
+     * @param name 类全路径
+     * @param source 类字符串代码
+     * @return
+     * @throws Throwable
+     */
     protected abstract Class<?> doCompile(String name, String source) throws Throwable;
 
 }

@@ -29,7 +29,12 @@ import java.io.IOException;
 public class ApplicationConsumer {
     public static void main(String[] args) {
         ReferenceConfig<DemoService> reference = new ReferenceConfig<>();
-        reference.setApplication(new ApplicationConfig("dubbo-bigger-rice-api-consumer"));
+
+        ApplicationConfig applicationConfig = new ApplicationConfig("dubbo-bigger-rice-api-consumer");
+        applicationConfig.setQosEnable(true);
+        applicationConfig.setQosPort(22222);
+        reference.setApplication(applicationConfig);
+
 
         //服务提供者注册中心配置，可以多个
         RegistryConfig registryConfig = new RegistryConfig("zookeeper://127.0.0.1:2181");

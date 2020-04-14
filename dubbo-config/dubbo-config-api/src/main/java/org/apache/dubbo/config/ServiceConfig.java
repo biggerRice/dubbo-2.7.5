@@ -759,8 +759,8 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 .setPort(0)
                 .build();
         logger.info("服务提供者导出本地服务 url:"+JSON.toJSONString(local));
-        // 创建 Invoker，并导出服务，这里的 protocol 会在运行时调用 InjvmProtocol 的 export 方法
-        // 使用 ProxyFactory 创建 Invoker 对象
+        // 先使用 ProxyFactory 创建 Invoker 对象
+        // 再使用 protocol 会在运行时调用 InjvmProtocol 的 export 方法
         // 使用 Protocol 暴露 Invoker 对象
         Exporter<?> exporter = protocol.export(
                 PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, local));

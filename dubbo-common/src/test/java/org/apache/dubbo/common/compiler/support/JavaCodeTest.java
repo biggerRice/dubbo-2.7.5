@@ -98,4 +98,23 @@ public class JavaCodeTest {
         code.append("}");
         return code.toString();
     }
+
+    String getSimpleCodeWithAll() {
+        StringBuilder code = new StringBuilder();
+        code.append("package org.apache.dubbo.common.compiler.support;");
+
+        code.append("import java.lang.*;\n");
+        code.append("import org.apache.dubbo.common.compiler.support;\n");
+
+        code.append("public class HelloServiceImpl" + SUBFIX.getAndIncrement() + " extends org.apache.dubbo.common.compiler.support.HelloServiceImpl00 {\n");
+        code.append("   public String sayHello() { ");
+        code.append("       return \"Hello world3!\"; ");
+        code.append("   }");
+        code.append("   public String sayBye() { ");
+        code.append("       return \"Hello Bye!\"; ");
+        code.append("   }");
+
+        code.append("}");
+        return code.toString();
+    }
 }

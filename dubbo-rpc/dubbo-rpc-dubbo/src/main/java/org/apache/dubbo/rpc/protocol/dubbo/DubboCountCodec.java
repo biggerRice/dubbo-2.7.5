@@ -31,8 +31,13 @@ import java.io.IOException;
 import static org.apache.dubbo.rpc.Constants.INPUT_KEY;
 import static org.apache.dubbo.rpc.Constants.OUTPUT_KEY;
 
+/**
+ * 实现 Codec2 接口，支持多消息的编解码器
+ */
 public final class DubboCountCodec implements Codec2 {
-
+    /**
+     * 编解码器
+     */
     private DubboCodec codec = new DubboCodec();
 
     @Override
@@ -42,22 +47,32 @@ public final class DubboCountCodec implements Codec2 {
 
     @Override
     public Object decode(Channel channel, ChannelBuffer buffer) throws IOException {
+        //解码前 记录buffer读位置
         int save = buffer.readerIndex();
+        //创建多消息对象
         MultiMessage result = MultiMessage.create();
         do {
+            //解码
             Object obj = codec.decode(channel, buffer);
+            // 输入不够，重置读进度
             if (Codec2.DecodeResult.NEED_MORE_INPUT == obj) {
                 buffer.readerIndex(save);
                 break;
+                //解析得到的消息
             } else {
+                //添加消息对象
                 result.addMessage(obj);
+                //添加消息的长度到隐士参数中
                 logMessageLength(obj, buffer.readerIndex() - save);
+                //记录当前消息位置 ，便于下个消息计算
                 save = buffer.readerIndex();
             }
         } while (true);
+        //未读到消息
         if (result.isEmpty()) {
             return Codec2.DecodeResult.NEED_MORE_INPUT;
         }
+        //单条或多天消息返回
         if (result.size() == 1) {
             return result.get(0);
         }
@@ -68,12 +83,14 @@ public final class DubboCountCodec implements Codec2 {
         if (bytes <= 0) {
             return;
         }
+        //请求
         if (result instanceof Request) {
             try {
                 ((RpcInvocation) ((Request) result).getData()).setAttachment(INPUT_KEY, String.valueOf(bytes));
             } catch (Throwable e) {
                 /* ignore */
             }
+        //响应
         } else if (result instanceof Response) {
             try {
                 ((AppResponse) ((Response) result).getResult()).setAttachment(OUTPUT_KEY, String.valueOf(bytes));

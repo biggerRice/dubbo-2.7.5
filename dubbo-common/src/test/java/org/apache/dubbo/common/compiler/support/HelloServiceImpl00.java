@@ -14,26 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.dubbo.common.compiler;
+package org.apache.dubbo.common.compiler.support;
 
-import org.apache.dubbo.common.extension.Adaptive;
-import org.apache.dubbo.common.extension.SPI;
+public class HelloServiceImpl00 implements Hello2Service {
+    @Override
+    public String sayHello() {
+        return "Hello world!";
+    }
 
-/**
- * Compiler. (SPI, Singleton, ThreadSafe)
- *  编译器接口服务 ，SPI机制默认实现类为javassist
- */
-@SPI("javassist")
-public interface Compiler {
-
-    /**
-     * Compile java source code.
-     * 编译java源代码
-     * @param code        Java source code 源代码字符串
-     * @param classLoader classloader 类加载器
-     * @return Compiled class
-     */
-    @Adaptive("ja")
-    Class<?> compile(String code, ClassLoader classLoader);
-
+    @Override
+    public String sayBye() {
+        return "Hello Bye!";
+    }
 }
